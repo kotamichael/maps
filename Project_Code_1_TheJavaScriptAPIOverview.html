@@ -11,25 +11,437 @@
       }
 
       #map {
+        bottom: 0px;
         height: 100%;
+        left: 362px;
+        position: absolute;
+        right: 0px;
+      }
+
+      .options-box {
+        background: #fff;
+        border: 1px solid #999;
+        border-radius: 3px;
+        height: 100%;
+        line-height: 35px;
+        padding: 10px 10px 30px 10px;
+        text-align: left;
+        width: 340px;
       }
     </style>
   </head>
   <body>
-    <div id="map"></div>
+    <div class="container">
+      <div class="options-box">
+        <h1>Where is your heart?</h1>
+        <div>
+          <input id="show-places" type="button" value="Show Places">
+          <input id="hide-places" type="button" value="Hide Places">
+        </div>
+      </div>
+      <div id="map"></div>
+    </div>
     <script>
       var map;
+
+      var markers = [];
       function initMap() {
+        // Create a styles array to use with the map
+        var styles = [
+          {
+              "elementType": "labels.text.stroke",
+              "stylers": [
+                  {
+                      "color": "#ffffff"
+                  }
+              ]
+          },
+          {
+              "elementType": "labels.text.fill",
+              "stylers": [
+                  {
+                      "color": "#000000"
+                  }
+              ]
+          },
+          {
+              "featureType": "water",
+              "elementType": "geometry",
+              "stylers": [
+                  {
+                      "color": "#0000ff"
+                  }
+              ]
+          },
+          {
+              "featureType": "road.highway",
+              "elementType": "geometry.fill",
+              "stylers": [
+                  {
+                      "color": "#ff0000"
+                  }
+              ]
+          },
+          {
+              "featureType": "road.highway",
+              "elementType": "geometry.stroke",
+              "stylers": [
+                  {
+                      "color": "#000100"
+                  }
+              ]
+          },
+          {
+              "featureType": "road.highway.controlled_access",
+              "elementType": "geometry.fill",
+              "stylers": [
+                  {
+                      "color": "#ffff00"
+                  }
+              ]
+          },
+          {
+              "featureType": "road.highway.controlled_access",
+              "elementType": "geometry.stroke",
+              "stylers": [
+                  {
+                      "color": "#ff0000"
+                  }
+              ]
+          },
+          {
+              "featureType": "road.arterial",
+              "elementType": "geometry.fill",
+              "stylers": [
+                  {
+                      "color": "#ffa91a"
+                  }
+              ]
+          },
+          {
+              "featureType": "road.arterial",
+              "elementType": "geometry.stroke",
+              "stylers": [
+                  {
+                      "color": "#000000"
+                  }
+              ]
+          },
+          {
+              "featureType": "landscape.natural",
+              "stylers": [
+                  {
+                      "saturation": 36
+                  },
+                  {
+                      "gamma": 0.55
+                  }
+              ]
+          },
+          {
+              "featureType": "road.local",
+              "elementType": "geometry.stroke",
+              "stylers": [
+                  {
+                      "color": "#000000"
+                  }
+              ]
+          },
+          {
+              "featureType": "road.local",
+              "elementType": "geometry.fill",
+              "stylers": [
+                  {
+                      "color": "#ffffff"
+                  }
+              ]
+          },
+          {
+              "featureType": "landscape.man_made",
+              "elementType": "geometry.stroke",
+              "stylers": [
+                  {
+                      "lightness": -100
+                  },
+                  {
+                      "weight": 2.1
+                  }
+              ]
+          },
+          {
+              "featureType": "landscape.man_made",
+              "elementType": "geometry.fill",
+              "stylers": [
+                  {
+                      "invert_lightness": true
+                  },
+                  {
+                      "hue": "#ff0000"
+                  },
+                  {
+                      "gamma": 3.02
+                  },
+                  {
+                      "lightness": 20
+                  },
+                  {
+                      "saturation": 40
+                  }
+              ]
+          },
+          {
+              "featureType": "poi.attraction",
+              "stylers": [
+                  {
+                      "saturation": 100
+                  },
+                  {
+                      "hue": "#ff00ee"
+                  },
+                  {
+                      "lightness": -13
+                  }
+              ]
+          },
+          {
+              "featureType": "poi.government",
+              "stylers": [
+                  {
+                      "saturation": 100
+                  },
+                  {
+                      "hue": "#eeff00"
+                  },
+                  {
+                      "gamma": 0.67
+                  },
+                  {
+                      "lightness": -26
+                  }
+              ]
+          },
+          {
+              "featureType": "poi.medical",
+              "elementType": "geometry.fill",
+              "stylers": [
+                  {
+                      "hue": "#ff0000"
+                  },
+                  {
+                      "saturation": 100
+                  },
+                  {
+                      "lightness": -37
+                  }
+              ]
+          },
+          {
+              "featureType": "poi.medical",
+              "elementType": "labels.text.fill",
+              "stylers": [
+                  {
+                      "color": "#ff0000"
+                  }
+              ]
+          },
+          {
+              "featureType": "poi.school",
+              "stylers": [
+                  {
+                      "hue": "#ff7700"
+                  },
+                  {
+                      "saturation": 97
+                  },
+                  {
+                      "lightness": -41
+                  }
+              ]
+          },
+          {
+              "featureType": "poi.sports_complex",
+              "stylers": [
+                  {
+                      "saturation": 100
+                  },
+                  {
+                      "hue": "#00ffb3"
+                  },
+                  {
+                      "lightness": -71
+                  }
+              ]
+          },
+          {
+              "featureType": "poi.park",
+              "stylers": [
+                  {
+                      "saturation": 84
+                  },
+                  {
+                      "lightness": -57
+                  },
+                  {
+                      "hue": "#a1ff00"
+                  }
+              ]
+          },
+          {
+              "featureType": "transit.station.airport",
+              "elementType": "geometry.fill",
+              "stylers": [
+                  {
+                      "gamma": 0.11
+                  }
+              ]
+          },
+          {
+              "featureType": "transit.station",
+              "elementType": "labels.text.stroke",
+              "stylers": [
+                  {
+                      "color": "#ffc35e"
+                  }
+              ]
+          },
+          {
+              "featureType": "transit.line",
+              "elementType": "geometry",
+              "stylers": [
+                  {
+                      "lightness": -100
+                  }
+              ]
+          },
+          {
+              "featureType": "administrative",
+              "stylers": [
+                  {
+                      "saturation": 100
+                  },
+                  {
+                      "gamma": 0.35
+                  },
+                  {
+                      "lightness": 20
+                  }
+              ]
+          },
+          {
+              "featureType": "poi.business",
+              "elementType": "geometry.fill",
+              "stylers": [
+                  {
+                      "saturation": -100
+                  },
+                  {
+                      "gamma": 0.35
+                  }
+              ]
+          },
+          {
+              "featureType": "poi.business",
+              "elementType": "labels.text.stroke",
+              "stylers": [
+                  {
+                      "color": "#69ffff"
+                  }
+              ]
+          },
+          {
+              "featureType": "poi.place_of_worship",
+              "elementType": "labels.text.stroke",
+              "stylers": [
+                  {
+                      "color": "#c3ffc3"
+                  }
+              ]
+          }
+      ]
         // Constructor creates a new map - only center and zoom are required.
         map = new google.maps.Map(document.getElementById('map'), {
-          center: {lat: 40.7413549, lng: -73.9980244},
-          zoom: 13
+          center: {lat: 41.096743, lng: -85.114917},
+          zoom: 13,
+          styles: styles
         });
+        var locations = [
+        {title: 'Rachel\'s House!', location: {lat: 42.16409, lng: -71.156429}},
+        {title: 'Dakota\'s House!', location: {lat: 41.096743, lng: -85.114917}},
+        {title: 'Cannon Beach!', location: {lat: 45.891774, lng: -123.961527}}
+        ];
+        var infowindow = new google.maps.InfoWindow();
+
+        var defaultIcon = makeMarkerIcon('0091ff');
+        var highlightedIcon = makeMarkerIcon('FFFF24');
+
+        var bounds = new google.maps.LatLngBounds();
+        // The following group uses the location array to create an array on intitialize
+        for (var i = 0; i < locations.length; i++) {
+          var position = locations[i].location;
+          var title = locations[i].title;
+          var marker = new google.maps.Marker({
+            position: position,
+            title: title,
+            icon: defaultIcon,
+            animation: google.maps.Animation.DROP,
+            id: i
+          });
+        markers.push(marker);
+        bounds.extend(marker.position);
+        marker.addListener('click', function() {
+          populateInfoWindow(this, infowindow);
+        });
+        // Two event listeners to control mouse-over/out color change.
+        marker.addListener('mouseover', function() {
+          this.setIcon(highlightedIcon);
+        });
+        marker.addListener('mouseout', function() {
+          this.setIcon(defaultIcon);
+        })
+        }
+        document.getElementById('show-places').addEventListener('click', showPlaces);
+        document.getElementById('hide-places').addEventListener('click', hidePlaces);
+      }
+
+      function populateInfoWindow(marker, infowindow) {
+        if (infowindow.marker != marker) {
+          infowindow.marker = marker;
+          infowindow.setContent('<div>' + marker.title + '</div>');
+          infowindow.open(map, marker);
+          infowindow.addListener('closerclick', function(){
+            infowindow.setMarker(null);
+          });
+        }
+      }
+
+      function showPlaces() {
+        var bounds = new google.maps.LatLngBounds();
+        for (var i = 0; i < markers.length; i++) {
+          markers[i].setMap(map);
+          bounds.extend(markers[i].position);
+        }
+        map.fitBounds(bounds);
+      }
+
+      function hidePlaces() {
+        for (var i = 0; i < markers.length; i++) {
+          markers[i].setMap(null);
+        }
+      }
+
+      //This funcion takes in a color and then creates a new marker icon of that color. The icon will be 21 px wide by 34 high, have and origin of 0,0 and be anchored at 10, 34.
+      function makeMarkerIcon(markerColor) {
+        var markerImage = new google.maps.MarkerImage('http://chart.googleapis.com/chart?chst=d_map_spin&chld=1.15|0|' + markerColor + '|40|_|%E2%80%A2',
+          new google.maps.Size(21, 34),
+          new google.maps.Point(0, 0),
+          new google.maps.Point(10, 34),
+          new google.maps.Point(21, 34));
+        return markerImage;
       }
     </script>
 
     <script async defer
-        src="https://maps.googleapis.com/maps/api/js?key=MYAPIKEY&v=3&callback=initMap">
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA5bin4wSADfhht1Gly1FyfI8zBzzmz6mI&v=3&callback=initMap">
     </script>
 
   </body>
